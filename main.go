@@ -4,12 +4,13 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"github.com/gin-contrib/sessions"
+
 	"github.com/Bhar8at/Postman-task-2/internal"
+	"github.com/Bhar8at/Postman-task-2/middleware"
+	"github.com/Bhar8at/Postman-task-2/routes"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/Bhar8at/Postman-task-2/middleware"
-	"github.com/Bhar8at/Postman-task-2/routes" 
 )
 
 func index(c *gin.Context) {
@@ -39,12 +40,12 @@ func main() {
 
 	app.NoRoute(notFound)
 
-	app.Static("/static", "./static")  
+	app.Static("/static", "./static")
 
 	app.SetFuncMap(template.FuncMap{
 		"formatAsTitle": internal.FormatAsTitle,
 		"formatAsDate":  internal.FormatAsDate,
-	})   
+	})
 
 	app.LoadHTMLGlob("templates/*")
 	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
@@ -58,12 +59,23 @@ func main() {
 	app.GET("/signup", routes.SignUp)
 	app.GET("/login", routes.Login)
 	app.GET("/logout", routes.Logout)
+	// there are more functions here :
 
+	auth := app.Group("/auth")
+	{
+		auth.GET("/signup/google", socials.GoogleSignUp)
+		auth.GET("/login/google", socials.GoogleLogin)
+		auth.GET("/google", socials.GoogleAuth)
+		auth.GET("/verify", middleware.AuthMiddleware(), routes.SendVerificationMail)
+		auth.GET("/verify/:id", routes.Verify)
 
-	
+		auth.POST("/signup", routes.SignUp)
+		auth.POST("/login", routes.Login)
+
+	}
+
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
-
 
 }

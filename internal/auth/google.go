@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"os"
 	"time"
+
 	"github.com/Bhar8at/Postman-task-2/database"
+	"github.com/Bhar8at/Postman-task-2/internal"
 	"github.com/Bhar8at/Postman-task-2/middleware"
 	"github.com/Bhar8at/Postman-task-2/models"
-	"github.com/Bhar8at/Postman-task-2/internal"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
