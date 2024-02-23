@@ -13,7 +13,7 @@ var db *sql.DB
 func init() {
 	godotenv.Load(".env")
 	var err error
-	db, err = sql.Open("postgres", os.Getenv("POSTGRES_URI")+"sslmode=disable")
+	db, err = sql.Open("postgres", os.Getenv("POSTGRES_URI")+"?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

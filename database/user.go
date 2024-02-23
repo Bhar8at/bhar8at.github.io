@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Bhar8at/Postman-task-2/models"
+	"github.com/Bhar8at/bhar8at.github.io/models"
 	"github.com/lib/pq"
 )
 

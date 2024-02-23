@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Bhar8at/Postman-task-2/internal"
-	"github.com/Bhar8at/Postman-task-2/middleware"
-	"github.com/Bhar8at/Postman-task-2/routes"
+	"github.com/Bhar8at/bhar8at.github.io/internal"
+	socials "github.com/Bhar8at/bhar8at.github.io/internal/auth"
+	"github.com/Bhar8at/bhar8at.github.io/middleware"
+	"github.com/Bhar8at/bhar8at.github.io/routes"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -66,8 +67,6 @@ func main() {
 		auth.GET("/signup/google", socials.GoogleSignUp)
 		auth.GET("/login/google", socials.GoogleLogin)
 		auth.GET("/google", socials.GoogleAuth)
-		auth.GET("/verify", middleware.AuthMiddleware(), routes.SendVerificationMail)
-		auth.GET("/verify/:id", routes.Verify)
 
 		auth.POST("/signup", routes.SignUp)
 		auth.POST("/login", routes.Login)
