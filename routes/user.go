@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/Devansh3712/tsuki-go/database"
+	"github.com/Bhar8at/bhar8at.github.io/database"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -20,14 +20,14 @@ func GetUser(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
 		return
 	}
 	userId := id.(string)
-	c.HTML(http.StatusOK, "user.tmpl.html", gin.H{
+	c.HTML(http.StatusOK, "userT.html", gin.H{
 		"settings":  true,
 		"user":      database.ReadUserById(userId),
 		"postCount": database.ReadPostsCount(userId),
@@ -51,7 +51,7 @@ func GetUserByName(c *gin.Context) {
 	}
 	user := database.ReadUserByName(username)
 	if user == nil {
-		c.HTML(http.StatusNotFound, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusNotFound, "errorT.html", gin.H{
 			"error":   "404 Not Found",
 			"message": "User not found",
 		})
@@ -64,7 +64,7 @@ func GetUserByName(c *gin.Context) {
 	posts := database.ReadPosts(user.Id, 5, 0)
 
 	if id != nil {
-		c.HTML(http.StatusOK, "user.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "userT.html", gin.H{
 			"user":      user,
 			"postCount": postCount,
 			"followers": followers,
@@ -74,7 +74,7 @@ func GetUserByName(c *gin.Context) {
 		})
 		return
 	}
-	c.HTML(http.StatusOK, "user.tmpl.html", gin.H{
+	c.HTML(http.StatusOK, "userT.html", gin.H{
 		"user":      user,
 		"postCount": postCount,
 		"followers": followers,
@@ -87,7 +87,7 @@ func GetUserPosts(c *gin.Context) {
 	username := c.Param("username")
 	user := database.ReadUserByName(username)
 	if user == nil {
-		c.HTML(http.StatusNotFound, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusNotFound, "errorT.html", gin.H{
 			"error":   "404 Not Found",
 			"message": "User not found",
 		})
@@ -95,7 +95,7 @@ func GetUserPosts(c *gin.Context) {
 	}
 	postLimit = 10
 	posts := database.ReadPosts(user.Id, 10, 0)
-	c.HTML(http.StatusOK, "userPosts.tmpl.html", gin.H{
+	c.HTML(http.StatusOK, "userpostsT.html", gin.H{
 		"user":  user,
 		"posts": posts,
 	})
@@ -114,7 +114,7 @@ func UpdateAvatar(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
@@ -122,14 +122,14 @@ func UpdateAvatar(c *gin.Context) {
 	}
 	switch c.Request.Method {
 	case "GET":
-		c.HTML(http.StatusOK, "update.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "updateT.html", gin.H{
 			"type": "avatar",
 		})
 	case "POST":
 		// Read the image
 		file, _, err := c.Request.FormFile("avatar")
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to process request, try again later.",
 			})
@@ -138,7 +138,7 @@ func UpdateAvatar(c *gin.Context) {
 		defer file.Close()
 		fileData, err := ioutil.ReadAll(file)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to read image, try again later.",
 			})
@@ -151,7 +151,7 @@ func UpdateAvatar(c *gin.Context) {
 			url.Values{"source": {encoded}},
 		)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to read image, try again later.",
 			})
@@ -160,7 +160,7 @@ func UpdateAvatar(c *gin.Context) {
 		defer response.Body.Close()
 		var responseData map[string]interface{}
 		if err := json.NewDecoder(response.Body).Decode(&responseData); err != nil {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to upload avatar, try again later.",
 			})
@@ -172,7 +172,7 @@ func UpdateAvatar(c *gin.Context) {
 			map[string]any{"avatar": responseData["image"].(map[string]interface{})["url"]},
 		); !result {
 			log.Println(responseData)
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to update avatar, try again later.",
 			})
@@ -188,7 +188,7 @@ func UpdateUsername(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
@@ -196,34 +196,34 @@ func UpdateUsername(c *gin.Context) {
 	}
 	switch c.Request.Method {
 	case "GET":
-		c.HTML(http.StatusOK, "update.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "updateT.html", gin.H{
 			"type": "username",
 		})
 	case "POST":
 		newUsername := c.PostForm("username")
 		user := database.ReadUserById(id.(string))
 		if user.Username == newUsername {
-			c.HTML(http.StatusForbidden, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "New username cannot be the same as current.",
 			})
 			return
 		}
 		if exists := database.ReadUserByName(newUsername); exists != nil {
-			c.HTML(http.StatusForbidden, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "Username not available or already taken.",
 			})
 			return
 		}
 		if result := database.UpdateUser(user.Id, map[string]any{"username": newUsername}); !result {
-			c.HTML(http.StatusInternalServerError, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusInternalServerError, "errorT.html", gin.H{
 				"error":   "500 Internal Server Error",
 				"message": "Unable to change username, try again later.",
 			})
 			return
 		}
-		c.HTML(http.StatusOK, "response.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "responseT.html", gin.H{
 			"message": "Username updated successfully",
 		})
 	}
@@ -233,7 +233,7 @@ func UpdatePassword(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
@@ -241,14 +241,14 @@ func UpdatePassword(c *gin.Context) {
 	}
 	switch c.Request.Method {
 	case "GET":
-		c.HTML(http.StatusOK, "update.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "updateT.html", gin.H{
 			"type": "password",
 		})
 	case "POST":
 		newPassword := c.PostForm("password")
 		user := database.ReadUserById(id.(string))
 		if user.CheckPassword(newPassword) {
-			c.HTML(http.StatusForbidden, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "New password cannot cannot be same as the current.",
 			})
@@ -258,13 +258,13 @@ func UpdatePassword(c *gin.Context) {
 		user.Password = newPassword
 		user.HashPassword()
 		if result := database.UpdateUser(id.(string), map[string]any{"password": user.Password}); !result {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to change password, try again later.",
 			})
 			return
 		}
-		c.HTML(http.StatusOK, "response.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "responseT.html", gin.H{
 			"message": "Password updated successfully",
 		})
 	}
@@ -274,7 +274,7 @@ func DeleteUser(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
@@ -282,7 +282,7 @@ func DeleteUser(c *gin.Context) {
 	}
 	switch c.Request.Method {
 	case "GET":
-		c.HTML(http.StatusOK, "delete.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "deleteT.html", gin.H{
 			"oauth": database.IsOAuthUser(id.(string)),
 		})
 	case "POST":
@@ -291,7 +291,7 @@ func DeleteUser(c *gin.Context) {
 		if !database.IsOAuthUser(user.Id) {
 			password := c.PostForm("password")
 			if !user.CheckPassword(password) {
-				c.HTML(http.StatusForbidden, "error.tmpl.html", gin.H{
+				c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 					"error":   "403 Forbidden",
 					"message": "Incorrect password.",
 				})
@@ -299,7 +299,7 @@ func DeleteUser(c *gin.Context) {
 			}
 		}
 		if result := database.DeleteUser(user.Id); !result {
-			c.HTML(http.StatusBadRequest, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to delete account, try again later.",
 			})
@@ -309,7 +309,7 @@ func DeleteUser(c *gin.Context) {
 		session.Clear()
 		session.Options(sessions.Options{Path: "/", MaxAge: -1})
 		session.Save()
-		c.HTML(http.StatusOK, "response.tmpl.html", gin.H{
+		c.HTML(http.StatusOK, "responseT.html", gin.H{
 			"message": "Account deleted succesfully. つき が つかって くれて ありがとう ございました。",
 		})
 	}
@@ -319,7 +319,7 @@ func ToggleFollow(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})

@@ -25,8 +25,8 @@ var state string
 func init() {
 	state = os.Getenv("SECRET_KEY")
 	config = &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		ClientID:     "708668997941-tsb8vf0j5olhckrum8ibr0mimhbjns6d.apps.googleusercontent.com",
+		ClientSecret: "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",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
 		},
@@ -35,12 +35,12 @@ func init() {
 }
 
 func GoogleSignUp(c *gin.Context) {
-	config.RedirectURL = "https://tsukigo.herokuapp.com/auth/google"
+	config.RedirectURL = "http://localhost:8080/auth/google"
 	c.Redirect(http.StatusFound, config.AuthCodeURL(state))
 }
 
 func GoogleLogin(c *gin.Context) {
-	config.RedirectURL = "https://tsukigo.herokuapp.com/auth/google?login=true"
+	config.RedirectURL = "http://localhost:8080/auth/google?login=true"
 	c.Redirect(http.StatusFound, config.AuthCodeURL(state))
 }
 
@@ -54,9 +54,9 @@ func GoogleAuth(c *gin.Context) {
 	}
 	switch c.Query("login") {
 	case "true":
-		config.RedirectURL = "https://tsukigo.herokuapp.com/auth/google?login=true"
+		config.RedirectURL = "http://localhost:8080/auth/google?login=true"
 	default:
-		config.RedirectURL = "https://tsukigo.herokuapp.com/auth/google"
+		config.RedirectURL = "http://localhost:8080/auth/google"
 	}
 	token, err := config.Exchange(context.Background(), c.Query("code"))
 	if err != nil {
@@ -140,7 +140,7 @@ func GoogleAuth(c *gin.Context) {
 		session.Set("Authorization", token)
 		session.Save()
 		if user.Verified {
-			c.Redirect(http.StatusFound, "/user/")
+			c.Redirect(http.StatusFound, "/feed")
 		} else {
 			c.Redirect(http.StatusFound, "/auth/verify?signup=true")
 		}

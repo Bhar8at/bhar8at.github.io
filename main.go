@@ -60,8 +60,10 @@ func main() {
 	app.GET("/signup", routes.SignUp)
 	app.GET("/login", routes.Login)
 	app.GET("/logout", routes.Logout)
-	// there are more functions here :
+	app.GET("/feed", middleware.AuthMiddleware(), routes.UserFeed)
+	app.GET("/feed/more", middleware.AuthMiddleware(), routes.LoadMoreFeed)
 
+	// Authentication related routes
 	auth := app.Group("/auth")
 	{
 		auth.GET("/signup/google", socials.GoogleSignUp)
@@ -71,6 +73,49 @@ func main() {
 		auth.POST("/signup", routes.SignUp)
 		auth.POST("/login", routes.Login)
 
+	}
+
+	user := app.Group("/user")
+	user.GET("/:username", routes.GetUserByName)
+	user.GET("/:username/posts", routes.GetUserPosts)
+	user.GET("/:username/posts/more", routes.LoadMorePosts)
+	user.Use(middleware.AuthMiddleware())
+	{
+		user.GET("/", routes.GetUser)
+		user.GET("/settings/avatar", routes.UpdateAvatar)
+		user.GET("/settings/username", routes.UpdateUsername)
+		user.GET("/settings/password", routes.UpdatePassword)
+		user.GET("/settings/delete", routes.DeleteUser)
+
+		user.POST("/:username/toggle-follow", routes.ToggleFollow)
+		user.POST("/settings/avatar", routes.UpdateAvatar)
+		user.POST("/settings/username", routes.UpdateUsername)
+		user.POST("/settings/password", routes.UpdatePassword)
+		user.POST("/settings/delete", routes.DeleteUser)
+	}
+
+	search := app.Group("/search")
+	{
+		search.GET("/", routes.SearchUser)
+		search.GET("/more", routes.LoadMoreUsers)
+
+		search.POST("/", routes.SearchUser)
+		search.POST("/:username/toggle-follow", middleware.AuthMiddleware(), routes.ToggleSearchFollow)
+	}
+
+	// CRUD functionality for posts
+	post := app.Group("/post")
+	post.GET("/:id", routes.GetPost)
+	post.Use(middleware.AuthMiddleware())
+	{
+		post.GET("/", routes.NewPost)
+		post.GET("/:id/toggle-vote", routes.ToggleVote)
+		post.GET("/:id/delete", routes.DeletePost)
+		post.GET("/:id/comments", routes.LoadMoreComments)
+		post.GET("/:id/comment/delete", routes.DeleteComment)
+
+		post.POST("/", routes.NewPost)
+		post.POST("/:id/comment", routes.Comment)
 	}
 
 	if err := app.Run(); err != nil {

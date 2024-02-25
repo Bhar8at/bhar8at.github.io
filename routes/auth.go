@@ -52,7 +52,7 @@ func SignUp(c *gin.Context) {
 			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "Account already exists with the given username.",
-			})
+			}) // there seems to be an error here !!
 			return
 		}
 		user.CreatedAt = time.Now()
@@ -71,7 +71,7 @@ func SignUp(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Set("Authorization", token)
 		session.Save()
-		c.Redirect(http.StatusFound, "/auth/verify?signup=true")
+		c.Redirect(http.StatusFound, "/login")
 	}
 }
 

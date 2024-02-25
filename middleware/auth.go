@@ -42,13 +42,13 @@ func CreateToken(id string) (string, error) {
 
 	// Creates a new token by specifying the signing method and giving the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	
+
 	// Signing the token with the secret key
 	return token.SignedString(secretKey)
 }
 
 func ParseToken(token string) (*JWTClaims, error) {
-	
+
 	// parses the JWT token
 	// token -- > JWT token to be parsed
 	// &JWTClaims{} --> placeholder to unmarshall the claims present in token
@@ -71,7 +71,7 @@ func AuthMiddleware() func(c *gin.Context) {
 		session := sessions.Default(c)
 		token := session.Get("Authorization")
 		if token == nil {
-			c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+			c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 				"error":   "401 Unauthorized",
 				"message": "User not logged in.",
 			})
