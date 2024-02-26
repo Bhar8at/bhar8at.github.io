@@ -9,6 +9,7 @@ import (
 )
 
 func CreateUser(user *models.User) bool {
+	// inserting user data into t_users table
 	if _, err := db.Exec(
 		`INSERT INTO t_users(email, username, password, id, verified, avatar, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -36,6 +37,7 @@ func CreateOAuthUser(id string) bool {
 
 func ReadUserByName(username string) *models.User {
 	var user models.User
+	// stores data retrieved from database into the user struct
 	if err := db.QueryRow(`SELECT * FROM t_users WHERE username = $1`, username).Scan(
 		&user.Email,
 		&user.Username,
@@ -238,33 +240,4 @@ func ReadFollowingCount(userId string) int {
 		return 0
 	}
 	return count
-}
-
-func CreateVerificationId(token string, id string) bool {
-	if _, err := db.Exec(
-		`INSERT INTO shorturl(token, id) VALUES ($1, $2)`, token, id,
-	); err != nil {
-		log.Println(err)
-		return false
-	}
-	return true
-}
-
-func ReadVerificationId(id string) string {
-	var token string
-	if err := db.QueryRow(
-		`SELECT token FROM shorturl WHERE id = $1`, id,
-	).Scan(&token); err != nil {
-		log.Println(err)
-		return ""
-	}
-	return token
-}
-
-func DeleteVerificationId(id string) bool {
-	if _, err := db.Exec(`DELETE FROM shorturl WHERE id = $1`, id); err != nil {
-		log.Println(err)
-		return false
-	}
-	return true
 }
