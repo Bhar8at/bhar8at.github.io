@@ -14,15 +14,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Root HTML Page
 func index(c *gin.Context) {
 	c.HTML(http.StatusOK, "indexT.html", nil)
 }
 
+// Error to show when page isn't found
 func notFound(c *gin.Context) {
 
 	c.HTML(http.StatusNotFound, "errorT.html", gin.H{
 		"error":   "404 Not Found",
-		"message": "The requested page was not found.",
+		"message": "The requested page wasn't found.",
 	})
 
 }
@@ -39,23 +41,30 @@ func main() {
 	// Makes it so that unavailable methods do not go ignored (405 status code returned)
 	app.HandleMethodNotAllowed = true
 
+	// if route doesn't match any that's given
 	app.NoRoute(notFound)
 
 	app.Static("/static", "./static")
 
+	// mapping keywords to functions for HTML pages
 	app.SetFuncMap(template.FuncMap{
 		"formatAsTitle": internal.FormatAsTitle,
 		"formatAsDate":  internal.FormatAsDate,
 	})
 
+	// Load HTML files in the templates folder
 	app.LoadHTMLGlob("templates/*")
-	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
 
-	app.Use(sessions.Sessions("tsuki", store))
 	// Storing the current session in a cookie
-	app.Use(middleware.RecoveryMiddleware())
-	// used to Recover from unexpected errors during handling of HTTP requests
+	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
+	app.Use(sessions.Sessions("cookie", store))
 
+	// used to Recover from unexpected errors during handling of HTTP requests
+	app.Use(middleware.RecoveryMiddleware())
+
+	// Routes
+
+	// Basic routes
 	app.GET("/", index)
 	app.GET("/signup", routes.SignUp)
 	app.GET("/login", routes.Login)

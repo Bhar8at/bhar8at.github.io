@@ -21,6 +21,7 @@ var (
 )
 
 func init() {
+	// loads and gets the following variables from the .env file
 	godotenv.Load(".env")
 	issuer = os.Getenv("ISSUER")
 	secretKey = []byte(os.Getenv("SECRET_KEY"))
@@ -33,7 +34,8 @@ func SignUp(c *gin.Context) {
 			"type": "signup",
 		})
 	case "POST":
-		var user models.User
+		var user models.User // creating a user
+
 		if err := c.Request.ParseForm(); err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
@@ -41,6 +43,8 @@ func SignUp(c *gin.Context) {
 			})
 			return
 		}
+
+		// binding parsed form data with the current logged in user
 		if err := c.ShouldBindWith(&user, binding.Form); err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
@@ -48,26 +52,33 @@ func SignUp(c *gin.Context) {
 			})
 			return
 		}
+
+		// Checking whether the current user is present in database or not
 		if user := database.ReadUserByName(user.Username); user != nil {
 			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "Account already exists with the given username.",
-			}) // there seems to be an error here !!
+			})
 			return
 		}
+
 		user.CreatedAt = time.Now()
 		user.Id = uuid.NewString()
-		user.Verified = false
 		user.HashPassword()
+
+		// storing user dara in database
 		if res := database.CreateUser(&user); !res {
+			// error returned since email is the unique key
 			c.HTML(http.StatusForbidden, "errorT.html", gin.H{
 				"error":   "403 Forbidden",
 				"message": "Account already exists with the given email.",
 			})
 			return
 		}
+
 		// Set authorization token for user
 		token, _ := middleware.CreateToken(user.Id)
+		// initializes a session for the current user
 		session := sessions.Default(c)
 		session.Set("Authorization", token)
 		session.Save()
@@ -105,6 +116,7 @@ func Login(c *gin.Context) {
 			})
 			return
 		}
+		// Checking if the passwords match
 		if !user.CheckPassword(login.Password) {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "401 Unauthorized",
@@ -112,6 +124,8 @@ func Login(c *gin.Context) {
 			})
 			return
 		}
+
+		// initializing token
 		token, _ := middleware.CreateToken(user.Id)
 		session := sessions.Default(c)
 		session.Set("Authorization", token)
