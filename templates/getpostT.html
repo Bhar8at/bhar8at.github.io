@@ -9,7 +9,7 @@
 </span>
 <u>
   <h3 style="margin-bottom: 30px">
-    <a href="/user/{{ .author.Username }}">@{{ .author.Username }}</a>
+    <a href="/user/{{ .author.Username }}">@{{ .author.Username }}</a> 
   </h3>
 </u>
 <p class="content">{{ .post.Body }}</p>
@@ -41,6 +41,11 @@
   <i class="fa-regular fa-trash-can"></i> Delete
 </a>
 {{ end }}
+<br />
+<h2 style="padding-top: 10px">Images</h2>
+<div class="images">
+  <img src="data:image/png;base64,{{.images}}" style="max-width: 200px; max-height: 200px; margin-right: 10px;">
+</div>
 <br />
 <h2 style="padding-top: 10px">Comments</h2>
 <form

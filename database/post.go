@@ -7,21 +7,25 @@ import (
 )
 
 func CreatePost(userId string, post *models.Post) bool {
-	if _, err := db.Exec(
-		`INSERT INTO posts(user_id, id, body, created_at)
-		VALUES ($1, $2, $3, $4)`,
-		userId, post.Id, post.Body, post.CreatedAt,
-	); err != nil {
-		log.Println(err)
+	var err error
+	_, err = db.Exec(
+		`INSERT INTO posts(user_id, id, body, created_at, images)
+    VALUES ($1, $2, $3, $4, $5)`,
+		userId, post.Id, post.Body, post.CreatedAt, post.Images,
+	)
+	if err != nil {
+		log.Println("Error inserting post into database:", err)
 		return false
 	}
+	println("successfully inserted values yaya")
+
 	return true
 }
 
 func ReadPost(id string) *models.Post {
 	var post models.Post
 	if err := db.QueryRow(`SELECT * FROM posts WHERE id = $1`, id).Scan(
-		&post.UserId, &post.Id, &post.Body, &post.CreatedAt,
+		&post.UserId, &post.Id, &post.Body, &post.CreatedAt, &post.Images,
 	); err != nil {
 		log.Println(err)
 		return nil
@@ -53,7 +57,7 @@ func ReadPosts(userId string, limit int, offset int) []models.Post {
 	defer rows.Close()
 	for rows.Next() {
 		var post models.Post
-		rows.Scan(&post.UserId, &post.Id, &post.Body, &post.CreatedAt)
+		rows.Scan(&post.UserId, &post.Id, &post.Body, &post.CreatedAt, &post.Images)
 		posts = append(posts, post)
 	}
 	return posts
@@ -75,7 +79,7 @@ func ReadFeedPosts(userId string, limit int, offset int) []models.Post {
 	defer rows.Close()
 	for rows.Next() {
 		var post models.Post
-		rows.Scan(&post.UserId, &post.Id, &post.Body, &post.CreatedAt)
+		rows.Scan(&post.UserId, &post.Id, &post.Body, &post.CreatedAt, &post.Images)
 		posts = append(posts, post)
 	}
 	return posts

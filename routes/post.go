@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -17,7 +20,7 @@ var commentLimit = 10
 func NewPost(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
-	// checking if the user is logged in
+	// Checking if the user is logged in
 	if id == nil {
 		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
@@ -25,31 +28,55 @@ func NewPost(c *gin.Context) {
 		})
 		return
 	}
+
 	switch c.Request.Method {
 	case "GET":
 		c.HTML(http.StatusOK, "makepostT.html", nil)
 	case "POST":
 		var post models.Post
-		if err := c.Request.ParseForm(); err != nil {
+
+		if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": "Unable to parse form.",
 			})
 			return
 		}
-		if err := c.ShouldBindWith(&post, binding.Form); err != nil {
+
+		if err := c.ShouldBind(&post); err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
 				"message": err.Error(),
 			})
 			return
 		}
+
 		post.Id = uuid.NewString()
 		post.CreatedAt = time.Now()
+
+		file, _, _ := c.Request.FormFile("images[]")
+		defer file.Close()
+
+		// Read the file content into a byte slice
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
+				"error":   "400 Bad Request",
+				"message": "Unable to read image data.",
+			})
+			return
+		}
+
+		// Convert image bytes to base64 string
+		base64Str := base64.StdEncoding.EncodeToString(fileBytes)
+
+		// Save the base64 string to the post.Images field
+		post.Images = base64Str
+
 		if result := database.CreatePost(id.(string), &post); !result {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
 				"error":   "400 Bad Request",
-				"message": "Unable to create post, try again later.",
+				"message": "Unable to create post, please try again later.",
 			})
 			return
 		}
@@ -87,6 +114,8 @@ func GetPost(c *gin.Context) {
 			self = true
 		}
 	}
+	fmt.Printf("\n\nHere is the image data : %x\n\n", post.Images)
+
 	c.HTML(http.StatusOK, "getpostT.html", gin.H{
 		"author":   database.ReadUserById(post.UserId),
 		"post":     post,
@@ -94,6 +123,7 @@ func GetPost(c *gin.Context) {
 		"voted":    voted,
 		"voters":   database.ReadVotes(post.Id),
 		"comments": comments,
+		"images":   post.Images,
 	})
 }
 

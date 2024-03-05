@@ -66,7 +66,7 @@ func SignUp(c *gin.Context) {
 		user.Id = uuid.NewString()
 		user.HashPassword()
 
-		// storing user dara in database
+		// storing user data in database
 		if res := database.CreateUser(&user); !res {
 			// error returned since email is the unique key
 			c.HTML(http.StatusForbidden, "errorT.html", gin.H{

@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS posts (
     id          CHAR(36)        PRIMARY KEY,
     body        VARCHAR(320)    NOT NULL,
     created_at  TIMESTAMPTZ     NOT NULL,
+    images      VARCHAR      ,
     CONSTRAINT fk_user_id
         FOREIGN KEY(user_id)
             REFERENCES t_users(id)
             ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS follows (
     user_id     CHAR(36)        NOT NULL,

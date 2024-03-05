@@ -9,6 +9,7 @@ type Post struct {
 	Username  string
 	Avatar    *string
 	CreatedAt time.Time
+	Images    string
 }
 
 type Comment struct {

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Bhar8at/bhar8at.github.io/database"
@@ -13,8 +14,9 @@ var feedLimit = 10
 func UserFeed(c *gin.Context) {
 	session := sessions.Default(c)
 	id := session.Get("userId")
+	fmt.Printf("\n\n HEre is the session ID: %x \n\n", id)
 	if id == nil {
-		c.HTML(http.StatusUnauthorized, "error.tmpl.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "errorT.html", gin.H{
 			"error":   "401 Unauthorized",
 			"message": "User not logged in.",
 		})
