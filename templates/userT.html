@@ -87,6 +87,7 @@
     <br />
     {{ if .posts }} {{ range .posts }}
     <a href="/post/{{ .Id }}">
+      <p><img src="data:image/png;base64,{{.Images}}" style="max-width: 100px; max-height: 100px;"></p>
       <p class="content">{{ .Body }}</p>
       <p class="separator">{{ .CreatedAt }}</p>
     </a>

@@ -15,7 +15,9 @@
     <a href="/user/{{ .Username }}">@{{ .Username }}</a>
   </h3>
   <a href="/post/{{ .Id }}">
+    <p><img src="data:image/png;base64,{{.Images}}" style="max-width: 200px; max-height: 200px;"></p>
     <p>{{ .Body }}</p>
+    
     <p class="separator">{{ .CreatedAt }}</p>
   </a>
   {{ end }}
