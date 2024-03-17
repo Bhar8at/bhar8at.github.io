@@ -71,6 +71,15 @@ func NewPost(c *gin.Context) {
 		filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(header.Filename))
 		path := filepath.Join("uploads", filename)
 
+		err = os.MkdirAll("uploads", 0755)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
+				"error":   "400 Bad Request",
+				"message": "Unable to read image data.",
+			})
+			return
+		}
+		
 		err = os.WriteFile(path, fileBytes, 0644)
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
