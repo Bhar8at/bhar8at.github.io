@@ -44,6 +44,7 @@ func main() {
 	// if route doesn't match any that's given
 	app.NoRoute(notFound)
 
+	app.Static("/static", "./static")
 	app.Static("/uploads", "./uploads")
 
 	// mapping keywords to functions for HTML pages
@@ -127,7 +128,7 @@ func main() {
 		post.POST("/:id/comment", routes.Comment)
 	}
 
-	if err := app.Run(); err != nil {
+	if err := app.Run("0.0.0.0:8080"); err != nil {
 		panic(err)
 	}
 

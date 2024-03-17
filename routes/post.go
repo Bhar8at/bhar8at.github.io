@@ -79,7 +79,7 @@ func NewPost(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		err = os.WriteFile(path, fileBytes, 0644)
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
