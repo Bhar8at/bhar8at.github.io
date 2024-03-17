@@ -44,7 +44,7 @@ func main() {
 	// if route doesn't match any that's given
 	app.NoRoute(notFound)
 
-	app.Static("/static", "./static")
+	app.Static("/uploads", "./uploads")
 
 	// mapping keywords to functions for HTML pages
 	app.SetFuncMap(template.FuncMap{

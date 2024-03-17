@@ -1,10 +1,11 @@
 package routes
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/Bhar8at/bhar8at.github.io/database"
@@ -54,7 +55,7 @@ func NewPost(c *gin.Context) {
 		post.Id = uuid.NewString()
 		post.CreatedAt = time.Now()
 
-		file, _, _ := c.Request.FormFile("images[]")
+		file, header, _ := c.Request.FormFile("images[]")
 		defer file.Close()
 
 		// Read the file content into a byte slice
@@ -67,11 +68,22 @@ func NewPost(c *gin.Context) {
 			return
 		}
 
-		// Convert image bytes to base64 string
-		base64Str := base64.StdEncoding.EncodeToString(fileBytes)
+		filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(header.Filename))
+		path := filepath.Join("uploads", filename)
 
-		// Save the base64 string to the post.Images field
-		post.Images = base64Str
+		err = os.WriteFile(path, fileBytes, 0644)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
+				"error":   "400 Bad Request",
+				"message": "Unable to read image data.",
+			})
+			return
+		}
+
+		baseURL := "http://localhost:8080"
+		imageURL := baseURL + "/" + path
+		fmt.Println("HEre is the Image URL : ", imageURL)
+		post.Images = imageURL
 
 		if result := database.CreatePost(id.(string), &post); !result {
 			c.HTML(http.StatusBadRequest, "errorT.html", gin.H{
@@ -114,7 +126,7 @@ func GetPost(c *gin.Context) {
 			self = true
 		}
 	}
-	fmt.Printf("\n\nHere is the image data : %x\n\n", post.Images)
+	fmt.Println("\n\nHere is the image data : \n\n", post.Images)
 
 	c.HTML(http.StatusOK, "getpostT.html", gin.H{
 		"author":   database.ReadUserById(post.UserId),
@@ -123,7 +135,7 @@ func GetPost(c *gin.Context) {
 		"voted":    voted,
 		"voters":   database.ReadVotes(post.Id),
 		"comments": comments,
-		"images":   post.Images,
+		"imageURL": post.Images,
 	})
 }
 

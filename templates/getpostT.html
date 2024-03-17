@@ -44,7 +44,9 @@
 <br />
 <h2 style="padding-top: 10px">Images</h2>
 <div class="images">
-  <img src="data:image/png;base64,{{.images}}" style="max-width: 200px; max-height: 200px; margin-right: 10px;">
+  {{ if .imageURL }}
+  <img src="{{ .imageURL }}" style="max-width: 200px; max-height: 200px; margin-right: 10px;">
+  {{ end }}
 </div>
 <br />
 <h2 style="padding-top: 10px">Comments</h2>
